@@ -37,7 +37,16 @@ automatizaciones_ia/
 
 Problemas encontrados y resueltos:
 - El comando `python` estaba secuestrado por el alias de la Microsoft Store en Windows 11. Solución: usar `py` fuera del venv y desactivar el alias.
-- Google AI Studio generaba claves con prefijo `AQ.` en lugar de `AIza`, incompatibles con el SDK oficial. Tras confirmar que era un problema conocido del lado de Google y no de configuración local, decidí cambiar a Groq como proveedor para la Fase 1. La sintaxis es OpenAI-compatible (más extendida en la industria) y los conceptos transfieren igual a otros proveedores.
+- Google AI Studio generaba claves con prefijo `AQ.` en lugar de `AIza`, incompatibles con el SDK oficial. Tras confirmar que era un problema conocido del lado de Google y no de configuración local, decidí cambiar a Groq como proveedor para la Fase 1. La sintaxis es OpenAI-compatible (más extendida en la industria) y los conceptos transfieren igual a otros proveedores.´
+
+**Día 3 (23 de Septiembre de 2026):** primer ejercicio completado — clasificador de partidas contables. Script que recibe una cuenta del PGC (código y nombre) y devuelve un JSON estructurado con grupo, subgrupo, naturaleza y descripción. Implementado con structured output de Groq (`gpt-oss-120b`), modo `strict=True`, enums mediante `Literal` para grupo y naturaleza, `temperature=0` para extracción determinista y validación con Pydantic.
+
+Problemas encontrados y resueltos:
+- En el diccionario `response_format` escribí `type="json_schema"`, usando `=` (sintaxis de argumento) en lugar de `:` (clave de diccionario) → error de sintaxis.
+- Tras corregirlo, dejé `type:` sin comillas: la clave pasaba a ser la función `type` de Python en vez del texto `"type"` → `TypeError: keys must be str... not type` al serializar a JSON. El traceback apuntaba dentro de las librerías, lejos del fallo real, que estaba en mi fichero. Lección: que un código compile no significa que esté bien.
+
+Aprendizaje clave: `strict` garantiza la *forma* de la respuesta (JSON válido, valores dentro del enum), no su *acierto*. Probando 5 inputs, el modelo acertó la naturaleza en los 5 casos (tarea semántica) pero falló el grupo en 4 de 5 (tarea mecánica = primer dígito del código). Conclusión para la Fase 2: el grupo debe calcularse en código puro (`int(cuenta[0])`) y reservar el LLM para lo genuinamente ambiguo.
+
 
 ## Autor
 
